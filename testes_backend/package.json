@@ -7,7 +7,7 @@
     "lint:tests": "npx eslint --ext .ts spec/",
     "start": "node -r module-alias/register ./dist --env=production",
     "dev": "nodemon",
-    "test": "nodemon --config ./spec/nodemon.json",
+    "test": "jest",
     "test:no-reloading": "npx ts-node --files -r tsconfig-paths/register ./spec"
   },
   "nodemonConfig": {
@@ -42,14 +42,16 @@
     "ts-command-line-args": "^2.4.2"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.21.0",
     "@types/cookie-parser": "^1.4.3",
     "@types/express": "^4.17.17",
     "@types/find": "^0.2.1",
     "@types/fs-extra": "^11.0.1",
     "@types/jasmine": "^4.3.1",
+    "@types/jest": "^29.5.0",
     "@types/jsonfile": "^6.1.1",
     "@types/morgan": "^1.9.4",
-    "@types/node": "^18.15.10",
+    "@types/node": "^18.15.11",
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@typescript-eslint/parser": "^5.57.0",
@@ -61,6 +63,7 @@
     "jest-extended": "^3.2.4",
     "nodemon": "^2.0.22",
     "supertest": "^6.3.3",
+    "ts-jest": "^29.0.5",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.2",
     "typescript": "^5.0.2"
