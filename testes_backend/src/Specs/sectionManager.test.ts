@@ -1,7 +1,7 @@
-import SectionManager from '../useCases/sectionManager';
+import { ISectionManager, SectionManager } from '../useCases/sectionManager';
 
 describe('SectionManager', () => {
-  let sectionManager: SectionManager;
+  let sectionManager: ISectionManager;
   
   beforeEach(() => {
     sectionManager = new SectionManager();

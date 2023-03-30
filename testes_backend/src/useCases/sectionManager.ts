@@ -5,14 +5,14 @@ class section{
     ){}  
 }
 
-interface ISectionManager {
+export interface ISectionManager {
     activeSections: Array<section>;
     createSection(authToken: string, userID: number): boolean;
     getUser(authToken: string): number;
     destroySection(authToken: string): boolean;
   }
 
- class sectionManager implements ISectionManager{
+export class SectionManager implements ISectionManager{
     activeSections: Array<section> = [];
 
     createSection(authToken:string,userID:number):boolean{
@@ -40,5 +40,3 @@ interface ISectionManager {
         return true;
     }
 };
-
-export default sectionManager;
