@@ -1,10 +1,14 @@
 import {Request,Response} from 'express'
 import storeController from './Controller/storeController';
+import UserDatabase, { IUserDatabase } from './Databases/UserDatabase';
+import { ISectionManager, SectionManager } from './useCases/sectionManager';
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const cors = require('cors');
-const controller = new storeController();
+const sectionManagerInstance:ISectionManager = new SectionManager()
+const userDatabase:IUserDatabase= new UserDatabase();
+const controller = new storeController(sectionManagerInstance,userDatabase);
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -13,16 +17,29 @@ app.use(bodyParser.json());
 // Handle POST request to '/api/register'
 app.post('/api/register', async (req: Request, res: Response) => {
   const { email, name, password } = req.body;
-  controller.signUp(email, name, password);
-  console.log("received requisition:email-"+email+" name-"+name);
-  res.send('Registration successful!').status(200);
+  let result = controller.signUp(email, name, password);
+  result.then(async (response) => {
+    console.log("received requisition:email-"+email+" name-"+name);
+    res.status(200).send('Registration successful!');
+  })
+  .catch((error) => {   
+    console.log("failed requisition:email-"+email+" name-"+name);
+    res.status(400).send('Registration failed!'); 
+  });
+ 
 });
 
 app.post('/api/login', async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  let authtoken = await controller.login(email, password);
-  console.log("received requisition:email-"+email+ "\nReturning authToken:"+authtoken);
-  res.send(authtoken).status(200);
+  let result = controller.login(email, password);
+  result.then(async (response) => {
+    console.log("received login:email-"+email);
+    res.status(200).send(response);
+  })
+  .catch((error) => {   
+    console.log("failed login:email-"+email);
+    res.status(400).send(error); 
+  });
 });
 
 
