@@ -1,4 +1,5 @@
 import User, { IUser } from "../Entities/user";
+import * as fs from 'fs';
 
 export interface IUserDatabase {    
     userList: IUser[];
@@ -10,19 +11,36 @@ export interface IUserDatabase {
 }
 
 class UserDatabase implements IUserDatabase {
-    userList: IUser[];
-  
-    constructor() {
+    userList: Array<User>;  
+
+    constructor(public fileName:string = "users") {
       this.userList = [];
+      this.loadUserList();
     }
-  
+    
+    private loadUserList(): void {
+      try {
+        const data = fs.readFileSync('data/'+this.fileName+'.json');
+        let parsedData = JSON.parse(data.toString());
+        if (Array.isArray(parsedData)) {
+          this.userList = parsedData;
+        } 
+      } catch (err) {
+        this.userList = [];
+      }
+    }
+    private saveUserList(): void {
+      fs.writeFileSync('data/'+this.fileName+'.json', JSON.stringify(this.userList)) ;
+    }
+
     createUser(name: string, email: string, password: string): boolean {
       if (this.userExists(email)) {
         return false;
       }
-      let id = this.userList.length;
+      let id = this.userList.length==0 ? 0 : this.userList[this.userList.length-1].id + 1;
       let user = new User(id, name, email, password);
       this.userList.push(user);
+      this.saveUserList();
       return true;
     }
   
@@ -38,6 +56,7 @@ class UserDatabase implements IUserDatabase {
       const index = this.userList.findIndex(user => user.id === id);
       if (index !== -1) {
         this.userList.splice(index, 1);
+        this.saveUserList();
         return true;
       }
       return false;

@@ -1,50 +1,88 @@
-import { IUserDatabase } from "@src/Databases/UserDatabase";
+import {Request,Response, response} from 'express'
 import generateAuthToken from "@src/Tools/AuthTokenGenerator";
-import { ISectionManager,SectionManager } from "@src/useCases/sectionManager";
+import { IUserManagement as IUserManager } from "@src/useCases/userManagement";
 import storeItem from "../Entities/storeItem";
 
 export interface IStoreController {
-    login(email: string, password: string): Promise<string>;
-    signUp(email: string, name: string, password: string): Promise<boolean>;
-    addToCart(authToken: string, item: storeItem): void;
-    purchase(authToken: string): Promise<boolean>;
-    checkout(authToken: string): Promise<boolean>;
+    login(req:Request, res:Response): void;
+    signUp(req:Request, res:Response): void;
+    logoff(req: Request, res:Response):void;
+    getUserData(req: Request, res:Response): void;
+    addToCart(req:Request, res:Response): void;
+    purchase(req:Request, res:Response): void;
+    checkout(req:Request, res:Response): void;
   }
 
  class storeController implements IStoreController{
-    sectionManager:ISectionManager;
-    userDatabase: IUserDatabase;
-    constructor(sectionManager:ISectionManager,userDatabase:IUserDatabase){
-        this.sectionManager = sectionManager;
-        this.userDatabase = userDatabase;
-    }
+ 
+    constructor(public userManager:IUserManager){}
 
-     async login(email: string, password: string): Promise<string> {       
-        let user = this.userDatabase.findUserByEmail(email);
-        if(user === undefined){
-            return Promise.reject(new Error('User not found'));
-        }
-        if(user.password != password){
-            return Promise.reject(new Error('Password doesn\'t match'));
-        }
-        let newSectionAuthToken = generateAuthToken();
-        this.sectionManager.createSection(newSectionAuthToken,user.id)
-        return Promise.resolve(newSectionAuthToken);
+     async login(req:Request, res:Response){       
+        const { email, password } = req.body;
+        let result = this.userManager.login(email, password);
+
+        result.then(response=>{
+            console.log("Sent 200:"+response);
+            res.status(200).send(response);
+        }).catch(error=>{            
+            console.log("Sent 400:"+error);
+            res.status(400);
+            res.statusMessage = error;
+            res.send()
+        })
      }
-     async signUp(email: string, name: string, password: string): Promise<boolean> {
-        if(this.userDatabase.createUser(name,email,password)){
-            return Promise.resolve(true);
-        }
-        return Promise.reject();        
+     async signUp(req:Request, res:Response) {
+        const {name, email, password } = req.body;
+        let result = this.userManager.signUp(email,name,password);
+
+        result.then(response=>{            
+            console.log("Sent 200:"+response);            
+            res.status(200).send(response);
+        }).catch(error=>{
+            console.log("Sent 400:"+error);            
+            res.status(400);
+            res.statusMessage = error;
+            res.send()
+        })
+     }
+     async logoff(req: Request, res:Response) {
+        const {authToken} = req.body;
+        let result = this.userManager.logoff(authToken);
+
+        result.then(response=>{            
+            console.log("Sent 200:"+response);            
+            res.status(200).send(response);
+        }).catch(error=>{
+            console.log("Sent 400:"+error);            
+            res.status(400);
+            res.statusMessage = error;
+            res.send()
+        })
+     }
+     async getUserData(req: Request, res:Response) {
+        const {authToken} = req.body;
+        let result = this.userManager.getUserData(authToken);
+        result.then(response=>{            
+            console.log("Received:"+authToken+"\nSent 200:"+response);            
+            res.status(200).send(response);
+        }).catch(error=>{
+            console.log("Received:"+authToken+"\nSent 403:"+error);            
+            res.status(400);
+            res.statusMessage = error;
+            res.send()
+        })
      }
 
-     addToCart(authToken: string, item: storeItem): void {
+     addToCart(req:Request, res:Response): void {
+        //authToken: string, item: storeItem
          throw new Error("Method not implemented.");
      }
-     purchase(authToken: string): Promise<boolean> {
+     purchase(req:Request, res:Response) {
+        //authToken: string
          throw new Error("Method not implemented.");
      }
-     checkout(authToken: string): Promise<boolean> {
+     checkout(req:Request, res:Response) {
+        //authToken: string
          throw new Error("Method not implemented.");
      }    
 }

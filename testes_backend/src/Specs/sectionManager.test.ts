@@ -1,4 +1,4 @@
-import { ISectionManager, SectionManager } from '../useCases/sectionManager';
+import { ISectionManager, SectionManager } from '../Databases/sectionManager';
 
 describe('SectionManager', () => {
   let sectionManager: ISectionManager;
@@ -31,13 +31,13 @@ describe('SectionManager', () => {
   describe('Getting User', () => {
     it('should return the userID of the section with the given authToken', () => {
       sectionManager.createSection('token1', 1);
-      const result = sectionManager.getUser('token1');
+      const result = sectionManager.getUserID('token1');
 
       expect(result).toBe(1);
     });
 
     it('should return -1 if authToken does not exist', () => {
-      const result = sectionManager.getUser('token1');
+      const result = sectionManager.getUserID('token1');
 
       expect(result).toBe(-1);
     });
