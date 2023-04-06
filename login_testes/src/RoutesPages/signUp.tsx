@@ -40,6 +40,22 @@ function SignUp() {
       name,
       password,
     };
+    
+    window.addEventListener('load', () => {checkIfItsLogged()});
+    const checkIfItsLogged = async () => {
+      let authToken = localStorage.getItem('authToken');
+      if(authToken == "") return;
+      const userData = {
+        authToken
+      };
+      api.post('/api/getUserData', userData)
+        .then((response) => {          
+          if(response.status == 200){          
+            navigate("/Store");
+          }        
+        });
+    };
+
     api.post('/api/register', userData)
       .then(async (response) => {
         console.log(response.data);
@@ -50,8 +66,9 @@ function SignUp() {
         }
         
       })
-      .catch((error) => {
-        console.log(error);        
+      .catch((error) => {        
+        console.log(error.response?.statusText as string);  
+        setInfoMessage(error.response?.statusText as string)         
       });
   };
   

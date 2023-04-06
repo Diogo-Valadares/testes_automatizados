@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import delay from '../delay';
+import { AxiosError } from 'axios';
 
-function Login() {
+function Login() {    
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,6 +24,21 @@ function Login() {
     padding: "10px",
   };
   
+  window.addEventListener('load', () => {checkIfItsLogged()});
+  const checkIfItsLogged = async () => {
+    let authToken = localStorage.getItem('authToken');
+    if(authToken == "") return;
+    const userData = {
+      authToken
+    };
+    api.post('/api/getUserData', userData)
+      .then((response) => {          
+        if(response.status == 200){          
+          navigate("/Store");
+        }        
+      });
+  };
+  
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const userData = {
@@ -30,19 +46,21 @@ function Login() {
       password
     };
     api.post('/api/login', userData)
-      .then((response) => {        
-        console.log(response.status+" "+response.data);  
-        if(response.status == 200){
+      .then((response) => {          
+        if(response.status == 200){          
+          console.log(response.status+" "+response.data);
           localStorage.setItem('authToken', response.data);
           navigate('/Store');          
         }
-        else{
-          setInfoMessage(response.data)                
+        else{          
+          console.log(response.status+" "+response.data.message);  
+          setInfoMessage(response.data.message)                
         }
         
       })
-      .catch((error) => {
-        setInfoMessage(error.message)   
+      .catch((error:AxiosError) => {  
+        console.log(error.response?.statusText as string);  
+        setInfoMessage(error.response?.statusText as string)   
       });
   };
   const signUp = async () => {
@@ -91,3 +109,5 @@ function Login() {
 }
 
 export default Login;
+
+
