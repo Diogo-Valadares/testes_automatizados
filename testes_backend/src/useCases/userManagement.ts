@@ -29,7 +29,6 @@ export class UserManagement implements IUserManagement{
     }
      
     async signUp(email: string, name: string, password: string): Promise<string> {              
-        console.log(email);  
         if(this.userDatabase.userExists(email)){
             return Promise.reject(new Error("User already exists!"));      
         }  
@@ -48,7 +47,6 @@ export class UserManagement implements IUserManagement{
     
     async getUserData(authToken: string): Promise<string> {
         let id = this.sectionManager.getUserID(authToken);
-        console.log(id);
         if(id < 0){
             return Promise.reject(new Error("Log in in order to get data!"));            
         }
@@ -58,7 +56,6 @@ export class UserManagement implements IUserManagement{
 }
 
 function stringify(entity:any, fieldsToRemove:any) {
-    console.log(fieldsToRemove);
     return JSON.stringify(entity, (key, value) => {
       if (fieldsToRemove.includes(key)) {
         return undefined;

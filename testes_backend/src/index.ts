@@ -15,6 +15,7 @@ const controller = new storeController(userManager);
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(express.static('public'));
 
 // Handle POST request to '/api/register'
 app.post('/api/register', async (req: Request, res: Response) => {
