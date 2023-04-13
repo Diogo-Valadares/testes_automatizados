@@ -2,6 +2,7 @@ import {Request,Response, response} from 'express'
 import generateAuthToken from "@src/Tools/AuthTokenGenerator";
 import { IUserManagement as IUserManager } from "@src/useCases/userManagement";
 import storeItem from "../Entities/storeItem";
+import { IProductFinder } from '@src/useCases/productFinder';
 
 export interface IStoreController {
     login(req:Request, res:Response): void;
@@ -15,7 +16,10 @@ export interface IStoreController {
 
  class storeController implements IStoreController{
  
-    constructor(public userManager:IUserManager){}
+    constructor(
+        public userManager:IUserManager,
+        public productFinder:IProductFinder
+        ){}
 
      async login(req:Request, res:Response){       
         const { email, password } = req.body;
@@ -46,7 +50,7 @@ export interface IStoreController {
         })
      }
      async logoff(req: Request, res:Response) {
-        const {authToken} = req.body;
+        const authToken = req.query.authToken as string;
         let result = this.userManager.logoff(authToken);
 
         result.then(response=>{            
@@ -60,23 +64,53 @@ export interface IStoreController {
         })
      }
      async getUserData(req: Request, res:Response) {
-        const {authToken} = req.body;
+        const authToken = req.query.authToken as string;
         let result = this.userManager.getUserData(authToken);
         result.then(response=>{            
             console.log("Received:"+authToken+"\nSent 200:"+response);            
             res.status(200).send(response);
         }).catch(error=>{
             console.log("Received:"+authToken+"\nSent 403:"+error);            
-            res.status(400);
+            res.status(403);
             res.statusMessage = error;
             res.send()
         })
+     }
+     
+     async getProduct(req: Request, res:Response){
+        const productId = req.query.id;
+        console.log("Requested Product:"+productId);
+        let result = this.productFinder.getProduct(parseInt(productId as string));
+        result.then(response=>{            
+            console.log("Requested Product:"+productId+"\nSent 200:"+response);            
+            res.status(200).json(response);
+        }).catch(error=>{
+            console.log("Requested Product:"+productId+"\nSent 404:"+error);            
+            res.status(404);
+            res.statusMessage = error;
+            res.send()
+        })
+     }
+     async getProducts(req: Request, res:Response){
+        let limit = parseInt(req.query.limit as string)  || 10; // default to 10 products
+        let offset = parseInt(req.query.offset as string) || 0; // default to start from the first product    
+        let result = this.productFinder.getProducts(offset, limit);
+        result.then(response=>{            
+            console.log("Requested Products:"+limit+" "+offset+"\nSent 200:"+response);            
+            res.status(200).json(response);
+        }).catch(error=>{
+            console.log("Requested Products:"+limit+" "+offset+"\nSent 404:"+error);            
+            res.status(404);
+            res.statusMessage = error;
+            res.send()
+        })        
      }
 
      addToCart(req:Request, res:Response): void {
         //authToken: string, item: storeItem
          throw new Error("Method not implemented.");
-     }
+     
+        }
      purchase(req:Request, res:Response) {
         //authToken: string
          throw new Error("Method not implemented.");

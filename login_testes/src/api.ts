@@ -1,9 +1,10 @@
 import axios from 'axios';
 
+export const baseURL = 'http://localhost:4001';
 
 const instance = axios.create({
-  baseURL: 'https://testesbackend-a4375.web.app/', // Replace with your backend URL
-  timeout: 5000, // Optional timeout value
+  baseURL: baseURL,
+  timeout: 5000, 
 });
 
 export default instance;

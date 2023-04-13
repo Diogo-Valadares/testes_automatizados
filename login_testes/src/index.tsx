@@ -5,6 +5,7 @@ import Login from './RoutesPages/login';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Store from './RoutesPages/store';
+import ProductGrid from './PageComponents/Product';
 
 
 const root = ReactDOM.createRoot(

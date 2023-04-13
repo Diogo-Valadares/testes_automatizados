@@ -3,34 +3,41 @@ import storeItem, { IStoreItem } from "@src/Entities/storeItem";
 
 export interface IProductsDatabase {    
     products: IStoreItem[];
-    recoverItemById(id:number):IStoreItem|undefined;
-    recoverItemByName(id:string):IStoreItem|undefined;
+    getItemById(id:number):IStoreItem|undefined;
+    getItemByName(id:string):IStoreItem|undefined;
+    getProducts(offset: number, limit: number):IStoreItem[];
 }    
 
 export class ProductsDatabase implements IProductsDatabase {
-    private readonly filePath: string;
     public products: IStoreItem[];
   
     constructor(filePath: string = 'products') {
-      this.filePath = filePath;
-      this.products = JSON.parse(fs.readFileSync(filePath, 'utf-8')).map(
+      this.products = JSON.parse(fs.readFileSync('data/'+filePath+'.json', 'utf-8')).map(
         (item: any) =>
           new storeItem(
             item.id,
             item.image,
             item.name,
+            item.price,
             item.category,
-            item.imageURL,
             item.weight
         )
       );
     }
   
-    recoverItemById(id: number): IStoreItem | undefined {
+    getItemById(id: number): IStoreItem | undefined {
       return this.products.find((item) => item.id === id);
     }
   
-    recoverItemByName(name: string): IStoreItem | undefined {
+    getItemByName(name: string): IStoreItem | undefined {
       return this.products.find((item) => item.name === name);
+    }
+
+    getProducts(offset: number, limit: number):IStoreItem[]{
+      let productsPerPage = limit;
+      let page = offset;
+      let startIndex = page* productsPerPage;
+      let endIndex = startIndex + productsPerPage;
+      return this.products.slice(startIndex, endIndex)
     }
   }

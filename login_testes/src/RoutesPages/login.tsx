@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
-import delay from '../delay';
 import { AxiosError } from 'axios';
 
 function Login() {    

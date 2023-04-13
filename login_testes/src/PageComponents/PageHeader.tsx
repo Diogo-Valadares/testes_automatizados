@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from './api';
+import api from '../api';
 import { AxiosError } from 'axios';
-import User from './Entities/user';
+import User from '../Entities/user';
 
 function Header() {  
   const navigate = useNavigate();
@@ -28,11 +28,11 @@ function Header() {
 
   const getUserName = async () => {
     let authToken = localStorage.getItem('authToken');
-    const userData = {
-      authToken
-    };
-    console.log("Sending hash "+userData);
-    api.post('/api/getUserData', userData)
+    if(authToken === null){
+      navigate("/Login");
+    }
+    console.log("Sending hash " + authToken);
+    api.get('/api/getUserData?authToken='+authToken)
       .then((response) => {          
         if(response.status == 200){          
           console.log(response.status+" "+response.data);
@@ -56,10 +56,10 @@ function Header() {
 
   const logoff = async () => {
     let authToken = localStorage.getItem('authToken');
-    const userData = {
-      authToken
-    };
-    api.post('/api/logoff', userData)
+    if(authToken === null){
+      navigate("/Login");
+    }
+    api.get('/api/logoff?authToken=' + authToken)
       .then((response) => {          
         if(response.status == 200){          
           console.log(response.status+" "+response.data);          

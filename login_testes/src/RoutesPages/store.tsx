@@ -1,28 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
-import Header from '../PageHeader';
+import Header from '../PageComponents/PageHeader';
+import ProductGrid from '../PageComponents/Product';
+import { Product } from '../Entities/ProductItem';
 
 function Store() {
   const navigate = useNavigate();  
-  const [imageSrcs, setImageSrcs] = useState<string[]>([]);
+  //const [imageSrcs, setImageSrcs] = useState<string[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, addProductToCart] = useState('');
-  const borderAroundText: React.CSSProperties = {
-    color: "black",
-    fontSize: "72px",
-    fontWeight: "bold",
-    border: "2px solid black",
-    padding: "10px",
-    display: "inline-block"
-  };
-  const bigText: React.CSSProperties = {
-    color: "black",
-    fontSize: "36px",
-    fontWeight: "bold",
-    padding: "10px",
-  };  
-  const addToCart = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  
+  useEffect(() => {
+    api.get('/api/products').then(response => {
+      let receivedProducts = JSON.parse(response.data) as Product[];
+      console.log(receivedProducts);
+      setProducts(receivedProducts);
+    });
+  }, []);
+  
+  const addToCart= (product: Product) => {
     const authToken = localStorage.getItem('authToken');
     const cartAddition = {
       authToken,
@@ -34,52 +31,43 @@ function Store() {
           localStorage.setItem('authToken', response.data);
           console.log(localStorage.getItem('authToken'));
           navigate('/Store');
-        }
-        
+        }        
       })
       .catch((error) => {
         console.log(error);        
       });   
   };
-  useEffect(() => {
-    const promises = [];
-    for (let i = 0; i < 4; i++) {
-      let imageURL = `/product${i}.jpg`;
-      promises.push(
-        api.get(imageURL, { responseType: 'blob' })
-          .then(response => {
-            const reader = new FileReader();
-            reader.readAsDataURL(response.data);
-            return new Promise(resolve => {
-              reader.onload = () => {
-                const imageSrc = reader.result;
-                resolve(imageSrc as string);
-              };
-            });
-          })
-          .catch(error => {
-            console.error(error);
-          })
-      );
-    }
-    Promise.all(promises).then(imageSrcs => {
-      setImageSrcs(imageSrcs as string[]);
-    });
-  }, []);
-  const goToSignUp = async () => {
-    navigate('/SignUp');
-  }
 
   return (
-    <><Header/>
+    <><Header/>  
     <div className="Store" style={{ textAlign: 'center' }}>
       <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-      {imageSrcs.map((imageSrc, index) => (
+      {/*{imageSrcs.map((imageSrc, index) => (
         <img key={index} src={imageSrc} alt="Product" />
-      ))}
+      ))}*/}
+      {products.length > 0 && (
+        <ProductGrid products={products} onAddToCart={addToCart} />
+      )}
       </div>
     </div></>
   );
 }
 
 export default Store;
+
+/*promises.push(
+  api.get(imageURL, { responseType: 'blob' })
+  .then(response => {
+    const reader = new FileReader();
+    reader.readAsDataURL(response.data);
+    return new Promise(resolve => {
+      reader.onload = () => {
+        const imageSrc = reader.result;
+        resolve(imageSrc as string);
+      };
+    });
+  })
+  .catch(error => {
+    console.error(error);
+  })
+);*/
