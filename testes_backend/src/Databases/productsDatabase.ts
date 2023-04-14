@@ -1,5 +1,5 @@
 import fs from 'fs';
-import storeItem, { IStoreItem } from "@src/Entities/storeItem";
+import storeItem, { IStoreItem } from "../Entities/storeItem";
 
 export interface IProductsDatabase {    
     products: IStoreItem[];
@@ -11,7 +11,7 @@ export interface IProductsDatabase {
 export class ProductsDatabase implements IProductsDatabase {
     public products: IStoreItem[];
   
-    constructor(filePath: string = 'products') {
+    constructor(public filePath: string = 'products') {
       this.products = JSON.parse(fs.readFileSync('data/'+filePath+'.json', 'utf-8')).map(
         (item: any) =>
           new storeItem(
@@ -36,7 +36,7 @@ export class ProductsDatabase implements IProductsDatabase {
     getProducts(offset: number, limit: number):IStoreItem[]{
       let productsPerPage = limit;
       let page = offset;
-      let startIndex = page* productsPerPage;
+      let startIndex = page * productsPerPage;
       let endIndex = startIndex + productsPerPage;
       return this.products.slice(startIndex, endIndex)
     }
