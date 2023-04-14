@@ -41,3 +41,5 @@ export class ProductsDatabase implements IProductsDatabase {
       return this.products.slice(startIndex, endIndex)
     }
   }
+
+export { IStoreItem };
