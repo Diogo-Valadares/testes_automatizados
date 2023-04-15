@@ -4,7 +4,6 @@
  */
 
 export default {
-  
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 

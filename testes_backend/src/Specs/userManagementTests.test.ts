@@ -1,30 +1,24 @@
 import { IUserDatabase } from '@src/Databases/UserDatabase';
-import { ISectionManager, section } from '@src/Databases/sectionManager';
 import { IUserManagement, UserManagement } from '../useCases/userManagement';
-import {expect} from '@jest/globals';
+import { expect } from '@jest/globals';
 
 describe('userManagement', () => {
-  let mockUserDatabase: IUserDatabase;
-  let mockSectionManager: ISectionManager;
-
+  let mockUserDatabase: jest.Mocked<IUserDatabase>;
   let userManagement: IUserManagement;
 
   beforeEach(() => {
     mockUserDatabase = {
-        userList: [],
-        createUser: jest.fn(),
-        findUserByEmail: jest.fn(),
-        findUserById: jest.fn(),
-        userExists: jest.fn(),
-        destroyUser: jest.fn()
+      userList: [],
+      createUser: jest.fn(),
+      findUserByEmail: jest.fn(),
+      findUserById: jest.fn(),
+      userExists: jest.fn(),
+      destroyUser: jest.fn(),
+      getUserCart: jest.fn(),
+      addToUserCart: jest.fn(),
+      removeFromUserCart: jest.fn()      
     };
-    mockSectionManager = {
-        createSection: jest.fn(),
-        destroySection: jest.fn(),
-        getUserID: jest.fn(),
-        activeSections: new Array<section>
-    };
-    userManagement = new UserManagement(mockUserDatabase, mockSectionManager);
+    userManagement = new UserManagement(mockUserDatabase);
   });
 
   describe('login', () => {
@@ -34,7 +28,7 @@ describe('userManagement', () => {
 
       mockUserDatabase.findUserByEmail = jest.fn().mockReturnValue(undefined);
 
-      await expect(userManagement.login(email, password)).rejects.toThrow('User not found');
+      await expect(userManagement.checkLoginData(email, password)).rejects.toThrow('User not found');
     });
 
     it('should reject if password is incorrect', async () => {
@@ -44,18 +38,17 @@ describe('userManagement', () => {
 
       mockUserDatabase.findUserByEmail = jest.fn().mockReturnValue(mockUser);
 
-      await expect(userManagement.login(email, password)).rejects.toThrow("Password doesn't match");
+      await expect(userManagement.checkLoginData(email, password)).rejects.toThrow("Password doesn't match");
     });
 
-    it('should create a new section and return the auth token if login is successful', async () => {
+    it('should return the user ID if login is successful', async () => {
       const email = 'test@test.com';
       const password = 'password';
       const mockUser = { id: 1, password: 'password' };
 
-      mockUserDatabase.findUserByEmail = jest.fn().mockReturnValue(mockUser);      
+      mockUserDatabase.findUserByEmail = jest.fn().mockReturnValue(mockUser);
 
-      expect(userManagement.login(email, password)).resolves.toHaveLength(64);
-      expect(mockSectionManager.createSection).toBeCalled();
+      await expect(userManagement.checkLoginData(email, password)).resolves.toBe(mockUser.id);
     });
   });
 
@@ -64,9 +57,9 @@ describe('userManagement', () => {
       const email = 'test@test.com';
       const name = 'Test User';
       const password = 'password';
-      
-      mockUserDatabase.userExists = jest.fn().mockReturnValue(true);
-      
+
+      mockUserDatabase.userExists.mockReturnValue(true);
+
       await expect(userManagement.signUp(email, name, password)).rejects.toThrow('User already exists!');
     });
 
@@ -75,59 +68,43 @@ describe('userManagement', () => {
       const name = 'Test User';
       const password = 'password';
 
-      mockUserDatabase.userExists = jest.fn().mockReturnValue(false);
-      mockUserDatabase.createUser = jest.fn().mockReturnValue(true);
-      
+      mockUserDatabase.userExists.mockReturnValue(false);
+      mockUserDatabase.createUser.mockReturnValue(true);
+
       await expect(userManagement.signUp(email, name, password)).resolves.toBe('User sucessfully created!');
       expect(mockUserDatabase.createUser).toHaveBeenCalledWith(name, email, password);
     });
+
     it('should reject with internal error when createUser fails', async () => {
-        const email = 'test@test.com';
-        const name = 'Test User';
-        const password = 'password';
+      const email = 'test@test.com';
+      const name = 'Test User';
+      const password = 'password';
+
+      mockUserDatabase.createUser.mockReturnValue(false);
+      mockUserDatabase.userExists.mockReturnValue(false);
+
+      await expect(userManagement.signUp(email, name, password)).rejects.toThrow('Internal Error');
+    });
     
-        mockUserDatabase.createUser = jest.fn().mockReturnValue(false);
-        mockUserDatabase.userExists = jest.fn().mockReturnValue(false);
+    describe('getUserData', () => {
+      it('should reject with error message if user does not exist', async () => {
+        const userId = 1;
+        mockUserDatabase.findUserById.mockReturnValue(undefined),
+
+        await expect(userManagement.getUserData(userId)).rejects.toThrow('Internal database error!');
+        expect(mockUserDatabase.findUserById).toHaveBeenCalledWith(userId);
+      });
     
-        await expect(userManagement.signUp(email, name, password)).rejects.toThrow('Internal Error');
-     });
-  });
-  describe('logoff', () => {
-    const authToken = 'fakeAuthToken';
-  
-    it('should resolve with success message if section is destroyed', async () => {
-      mockSectionManager.destroySection = jest.fn().mockReturnValue(true);
-  
-      const result = await userManagement.logoff(authToken);
-  
-      expect(result).toEqual('Successfully signed off!');
-      expect(mockSectionManager.destroySection).toHaveBeenCalledWith(authToken);
-    });
-  
-    it('should reject with error message if section is not destroyed', async () => {
-      mockSectionManager.destroySection = jest.fn().mockReturnValue(false);
-  
-      await expect(userManagement.logoff(authToken)).rejects.toThrow('Already logged off, refresh the page.');
-      expect(mockSectionManager.destroySection).toHaveBeenCalledWith(authToken);
-    });
-  });
-  describe('getUserData', () => {
-    it('should reject if not logged in', async () => {
-      const authToken = 'invalid-token';
-      mockSectionManager.getUserID = jest.fn().mockReturnValue(-1);
-  
-      await expect(userManagement.getUserData(authToken)).rejects.toThrow('Log in in order to get data!');
-    });
-  
-    it('should return user data without sensitive fields', async () => {
-      const authToken = 'valid-token';
-      const userId = 1;
-      const user = { id: userId, name: 'Test User', email: 'test@test.com', password: 'password' };
-      const userData = '{"name":"Test User","email":"test@test.com"}';
-      mockSectionManager.getUserID = jest.fn().mockReturnValue(userId);
-      mockUserDatabase.findUserById = jest.fn().mockReturnValue(user);
-  
-      await expect(userManagement.getUserData(authToken)).resolves.toBe(userData);
+      it('should return user data without sensitive fields', async () => {
+        const userId = 1;        
+        const user = { id: userId, name: 'Test User', email: 'test@test.com', password: 'password' , carrinho: []};        
+        mockUserDatabase.findUserById.mockReturnValue(user);
+
+        const expectedData = '{"name":"Test User","email":"test@test.com"}';
+        
+        await expect(userManagement.getUserData(userId)).resolves.toBe(expectedData);
+        expect(mockUserDatabase.findUserById).toHaveBeenCalledWith(userId);
+      });
     });
   });
 });

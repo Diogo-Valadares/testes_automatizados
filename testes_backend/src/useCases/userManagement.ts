@@ -1,31 +1,25 @@
 import { IUserDatabase } from "@src/Databases/UserDatabase";
-import { ISectionManager } from "@src/Databases/sectionManager";
-import generateAuthToken from "../Tools/AuthTokenGenerator";
 
 export interface IUserManagement{
-    login(email: string, password: string): Promise<string>;
+    checkLoginData(email: string, password: string): Promise<number>;
     signUp(email: string, name: string, password: string): Promise<string>;
-    logoff(authToken : string): Promise<string>;    
-    getUserData(authToken: string): Promise<string>;
+    getUserData(id: number): Promise<string>;
 }
 
 export class UserManagement implements IUserManagement{
     constructor(
-        public userDatabase: IUserDatabase, 
-        public sectionManager:ISectionManager
+        public userDatabase: IUserDatabase
     ){}
     
-    async login(email: string, password: string): Promise<string> {       
+    async checkLoginData(email: string, password: string): Promise<number> {       
         let user = this.userDatabase.findUserByEmail(email);
         if(user === undefined){
             return Promise.reject(new Error('User not found'));
         }
-        if(user.password != password){
+        if(user.password !== password){
             return Promise.reject(new Error('Password doesn\'t match'));
         }
-        let newSectionAuthToken = generateAuthToken();
-        this.sectionManager.createSection(newSectionAuthToken,user.id)
-        return Promise.resolve(newSectionAuthToken);
+        return Promise.resolve(user.id);
     }
      
     async signUp(email: string, name: string, password: string): Promise<string> {              
@@ -38,24 +32,16 @@ export class UserManagement implements IUserManagement{
         return Promise.reject(new Error("Internal Error"));
     }
 
-    async logoff(authToken: string): Promise<string> {
-        if(this.sectionManager.destroySection(authToken)){
-            return Promise.resolve("Successfully signed off!");
-        }        
-        return Promise.reject(new Error("Already logged off, refresh the page."));
-    }
-    
-    async getUserData(authToken: string): Promise<string> {
-        let id = this.sectionManager.getUserID(authToken);
-        if(id < 0){
-            return Promise.reject(new Error("Log in in order to get data!"));            
-        }
+    async getUserData(id:number): Promise<string> {
         let data = this.userDatabase.findUserById(id);
-        return Promise.resolve(stringify(data,["id","password"]));        
-    }       
+        if(data === undefined){
+            return Promise.reject(new Error("Internal database error!"))
+        }
+        return Promise.resolve(stringify(data,["id","password","carrinho"]));        
+    }     
 }
 
-function stringify(entity:any, fieldsToRemove:any) {
+    function stringify(entity:any, fieldsToRemove:any) {
     return JSON.stringify(entity, (key, value) => {
       if (fieldsToRemove.includes(key)) {
         return undefined;

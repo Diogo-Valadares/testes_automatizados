@@ -8,6 +8,9 @@ export interface IUserDatabase {
     findUserById(id: number): IUser | undefined;
     destroyUser(id: number): boolean;
     userExists(email: string): boolean;
+    getUserCart(userID: number):Array<[number,number]>|undefined;
+    addToUserCart(userID: number,productID: number):boolean;
+    removeFromUserCart(userID: number,productID: number):boolean;
 }
 
 class UserDatabase implements IUserDatabase {
@@ -65,5 +68,45 @@ class UserDatabase implements IUserDatabase {
     userExists(email: string): boolean {
       return this.userList.some(user => user.email === email);
     }
+
+    getUserCart(userID: number):Array<[number,number]>|undefined
+    {
+        let index = this.userList.findIndex(user => user.id === userID);
+        if(index === -1){
+            return undefined;
+        }
+        return this.userList[index].carrinho;
+    }
+    addToUserCart(userID: number,productID: number):boolean{
+      let index = this.userList.findIndex(user => user.id === userID);
+      if(index === -1){
+          return false;
+      }
+      let indexProdutoNoCarrinho = 
+        this.userList[index].carrinho.findIndex(p => p[0] = productID);
+      if(indexProdutoNoCarrinho !== -1){
+        this.userList[index].carrinho[indexProdutoNoCarrinho][1]++;
+        return true;
+      }
+      this.userList[index].carrinho.push([productID,1]);
+      return true
+    }
+    removeFromUserCart(userID: number,productID: number):boolean{
+      let index = this.userList.findIndex(user => user.id === userID);
+      if(index === -1){
+          return false;
+      }
+      let indexProdutoNoCarrinho = 
+        this.userList[index].carrinho.findIndex(p => p[0] = productID);
+      if(indexProdutoNoCarrinho !== -1){
+        this.userList[index].carrinho[indexProdutoNoCarrinho][1]--;
+        if(this.userList[index].carrinho[indexProdutoNoCarrinho][1] === 0){
+          this.userList[index].carrinho.splice(indexProdutoNoCarrinho);
+        }
+        return true;
+      }
+      return false;
+    }
+    
   }
   export default UserDatabase;

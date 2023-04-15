@@ -3,6 +3,8 @@ import generateAuthToken from "@src/Tools/AuthTokenGenerator";
 import { IUserManagement as IUserManager } from "@src/useCases/userManagement";
 import storeItem from "../Entities/storeItem";
 import { IProductFinder } from '@src/useCases/productFinder';
+import { ISectionManager } from '@src/useCases/sectionManager';
+
 
 export interface IStoreController {
     login(req:Request, res:Response): void;
@@ -10,24 +12,33 @@ export interface IStoreController {
     logoff(req: Request, res:Response):void;
     getUserData(req: Request, res:Response): void;
     addToCart(req:Request, res:Response): void;
-    purchase(req:Request, res:Response): void;
-    checkout(req:Request, res:Response): void;
   }
 
  class storeController implements IStoreController{
  
     constructor(
+        public sectionManager:ISectionManager,
         public userManager:IUserManager,
         public productFinder:IProductFinder
         ){}
 
      async login(req:Request, res:Response){       
         const { email, password } = req.body;
-        let result = this.userManager.login(email, password);
+        let resultID = this.userManager.checkLoginData(email, password);
 
-        result.then(response=>{
-            console.log("Sent 200:"+response);
-            res.status(200).send(response);
+        resultID.then(id=>{            
+            let newSectionAuthToken = generateAuthToken();
+            let response = this.sectionManager.createSection(newSectionAuthToken,id)
+            response.then(()=>{
+                console.log("Sent 200:"+newSectionAuthToken);
+                res.status(200).send(newSectionAuthToken);
+            }).catch(error=>{
+                console.log("Sent 400:"+error);            
+                res.status(400);
+                res.statusMessage = error;
+                res.send()
+            })
+            
         }).catch(error=>{            
             console.log("Sent 400:"+error);
             res.status(400);
@@ -51,7 +62,7 @@ export interface IStoreController {
      }
      async logoff(req: Request, res:Response) {
         const authToken = req.query.authToken as string;
-        let result = this.userManager.logoff(authToken);
+        let result = this.sectionManager.destroySection(authToken);
 
         result.then(response=>{            
             console.log("Sent 200:"+response);            
@@ -65,16 +76,24 @@ export interface IStoreController {
      }
      async getUserData(req: Request, res:Response) {
         const authToken = req.query.authToken as string;
-        let result = this.userManager.getUserData(authToken);
-        result.then(response=>{            
-            console.log("Received:"+authToken+"\nSent 200:"+response);            
-            res.status(200).send(response);
+        let resultID = this.sectionManager.getUserID(authToken);
+        resultID.then(id=>{
+            let result = this.userManager.getUserData(id);
+            result.then(response=>{            
+                console.log("Received:"+authToken+"\nSent 200:"+response);            
+                res.status(200).send(response);
+            }).catch(error=>{
+                console.log("Received:"+authToken+"\nSent 403:"+error);            
+                res.status(500);
+                res.statusMessage = error;
+                res.send()
+            })
         }).catch(error=>{
             console.log("Received:"+authToken+"\nSent 403:"+error);            
             res.status(403);
             res.statusMessage = error;
             res.send()
-        })
+        })        
      }
      
      async getProduct(req: Request, res:Response){
@@ -106,19 +125,13 @@ export interface IStoreController {
         })        
      }
 
-     addToCart(req:Request, res:Response): void {
-        //authToken: string, item: storeItem
-         throw new Error("Method not implemented.");
+    addToCart(req:Request, res:Response): void {
+        
      
-        }
-     purchase(req:Request, res:Response) {
-        //authToken: string
-         throw new Error("Method not implemented.");
-     }
-     checkout(req:Request, res:Response) {
-        //authToken: string
-         throw new Error("Method not implemented.");
-     }    
+    }
+    getCart(req:Request, res:Response): void{
+
+    }
 }
 
 export default storeController

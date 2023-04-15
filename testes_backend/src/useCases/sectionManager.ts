@@ -7,36 +7,36 @@ export class section{
 
 export interface ISectionManager {
     activeSections: Array<section>;
-    createSection(authToken: string, userID: number): boolean;
-    getUserID(authToken: string): number;
-    destroySection(authToken: string): boolean;
+    createSection(authToken: string, userID: number): Promise<void>;
+    getUserID(authToken: string): Promise<number>;
+    destroySection(authToken: string): Promise<string>;
   }
 
 export class SectionManager implements ISectionManager{
     activeSections: (Array<section>) = [];
 
-    createSection(authToken:string,userID:number):boolean{
+    createSection(authToken:string,userID:number):Promise<void>{
         let index = this.activeSections.findIndex(s=> s.authToken == authToken || s.userID == userID);
         if(index != -1){
-            return false;
+            return Promise.reject('User already Logged in!');
         }
         const newSection = new section(authToken,userID);
         this.activeSections.push(newSection);
-        return true;
+        return Promise.resolve();
     }
-    getUserID(authToken:string):number{
+    getUserID(authToken:string):Promise<number>{
         let index = this.activeSections.findIndex(s=> s.authToken == authToken);
         if(index == -1){
-            return -1;
+            return Promise.reject("Log in in order to get data!");
         }
-        return this.activeSections[index].userID;
+        return Promise.resolve(this.activeSections[index].userID);
     }
-    destroySection(authToken:string):boolean{
+    destroySection(authToken:string):Promise<string>{
         let index = this.activeSections.findIndex(s=> s.authToken == authToken);
         if(index == -1){
-            return false;
+            return Promise.reject("Already logged off, refresh the page.");
         }
         this.activeSections.splice(index);
-        return true;
+        return Promise.resolve("Successfully signed off!");
     }
 };

@@ -1,7 +1,7 @@
 import {Request,Response} from 'express'
 import storeController from './Controller/storeController';
 import UserDatabase, { IUserDatabase } from './Databases/UserDatabase';
-import { ISectionManager, SectionManager } from './Databases/sectionManager';
+import { ISectionManager, SectionManager } from './useCases/sectionManager';
 import { IUserManagement, UserManagement } from './useCases/userManagement';
 import { IProductFinder, ProductFinder } from './useCases/productFinder';
 import { IProductsDatabase, ProductsDatabase } from './Databases/productsDatabase';
