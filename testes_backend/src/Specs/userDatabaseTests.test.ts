@@ -56,7 +56,7 @@ describe("UserDatabase", () => {
       expect(success).toBeTruthy()
       expect(userDB.userList).toEqual([new User(0, 'Alice', 'alice@example.com', 'password')]);
       const data = fs.readFileSync(testFile);
-      expect(data.toString()).toEqual('[{"id":0,"name":"Alice","email":"alice@example.com","password":"password","carrinho":[]}]');
+      expect(data.toString()).toEqual('[{"id":0,"name":"Alice","email":"alice@example.com","password":"password","cart":[]}]');
     })
   });
   describe('Database Management', () => {

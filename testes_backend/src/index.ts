@@ -5,16 +5,18 @@ import { ISectionManager, SectionManager } from './useCases/sectionManager';
 import { IUserManagement, UserManagement } from './useCases/userManagement';
 import { IProductFinder, ProductFinder } from './useCases/productFinder';
 import { IProductsDatabase, ProductsDatabase } from './Databases/productsDatabase';
+import { IUserCartManager, UserCartManager } from './useCases/cartManagement';
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const cors = require('cors');
 const sectionManagerInstance:ISectionManager = new SectionManager()
 const userDatabase:IUserDatabase = new UserDatabase();
-const userManager:IUserManagement = new UserManagement(userDatabase,sectionManagerInstance);
+const userManager:IUserManagement = new UserManagement(userDatabase);
 const productsDatabase: IProductsDatabase = new ProductsDatabase();
 const productFinder:IProductFinder = new ProductFinder(productsDatabase);
-const controller = new storeController(userManager,productFinder);
+const cartManagement:IUserCartManager = new UserCartManager(userDatabase);
+const controller = new storeController(sectionManagerInstance, userManager,productFinder,cartManagement);
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -44,7 +46,18 @@ app.get('/api/product',  async (req: Request, res: Response) => {
 
 app.get('/api/products', async (req: Request, res: Response) => {
   controller.getProducts(req,res);
+})
+;
+app.get('/api/addToCart',  async (req: Request, res: Response) => {
+  controller.addToCart(req,res);
 });
+app.get('/api/removeFromCart', async (req: Request, res: Response) => {
+  controller.removeFromCart(req,res);
+});
+app.get('/api/getUserCart',  async (req: Request, res: Response) => {
+  controller.getCart(req,res);
+});
+
 
 // Start server
 app.listen(4001, () => {  

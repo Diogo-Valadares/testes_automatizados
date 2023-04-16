@@ -75,7 +75,7 @@ class UserDatabase implements IUserDatabase {
         if(index === -1){
             return undefined;
         }
-        return this.userList[index].carrinho;
+        return this.userList[index].cart;
     }
     addToUserCart(userID: number,productID: number):boolean{
       let index = this.userList.findIndex(user => user.id === userID);
@@ -83,12 +83,13 @@ class UserDatabase implements IUserDatabase {
           return false;
       }
       let indexProdutoNoCarrinho = 
-        this.userList[index].carrinho.findIndex(p => p[0] = productID);
+        this.userList[index].cart.findIndex(p => p[0] === productID);
       if(indexProdutoNoCarrinho !== -1){
-        this.userList[index].carrinho[indexProdutoNoCarrinho][1]++;
+        this.userList[index].cart[indexProdutoNoCarrinho][1]++;               
+        this.saveUserList();
         return true;
       }
-      this.userList[index].carrinho.push([productID,1]);
+      this.userList[index].cart.push([productID,1]);
       return true
     }
     removeFromUserCart(userID: number,productID: number):boolean{
@@ -97,12 +98,13 @@ class UserDatabase implements IUserDatabase {
           return false;
       }
       let indexProdutoNoCarrinho = 
-        this.userList[index].carrinho.findIndex(p => p[0] = productID);
+        this.userList[index].cart.findIndex(p => p[0] === productID);
       if(indexProdutoNoCarrinho !== -1){
-        this.userList[index].carrinho[indexProdutoNoCarrinho][1]--;
-        if(this.userList[index].carrinho[indexProdutoNoCarrinho][1] === 0){
-          this.userList[index].carrinho.splice(indexProdutoNoCarrinho);
-        }
+        this.userList[index].cart[indexProdutoNoCarrinho][1]--;
+        if(this.userList[index].cart[indexProdutoNoCarrinho][1] === 0){
+          this.userList[index].cart.splice(indexProdutoNoCarrinho);   
+        }               
+        this.saveUserList();
         return true;
       }
       return false;

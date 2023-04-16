@@ -1,1 +1,1 @@
-[{"id":0,"name":"diogo v","email":"a@a","password":"123"},{"id":1,"name":"SLA MANO","email":"a@b","password":"123"},{"id":2,"name":"teste AAAA","email":"teste@a","password":"123"}]
+[{"id":0,"name":"diogo valadares","email":"a@a","password":"123","cart":[]},{"id":1,"name":"teste nome","email":"a@b","password":"123","cart":[[1,2],[0,1],[2,1],[3,1],[7,2]]}]

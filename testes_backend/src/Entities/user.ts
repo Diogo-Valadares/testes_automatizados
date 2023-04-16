@@ -3,11 +3,11 @@ export interface IUser {
     name: string;
     email: string;
     password: string;
-    carrinho:Array<[number, number]>;
+    cart:[number, number][];
 }
 class User implements IUser {
-    public carrinho:Array<[number, number]> = new Array<[number, number]>();
-    
+  public cart:Array<[number, number]> = new Array<[number, number]>(); 
+
     constructor(
       public id: number,
       public name: string,

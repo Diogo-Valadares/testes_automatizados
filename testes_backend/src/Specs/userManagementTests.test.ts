@@ -97,7 +97,7 @@ describe('userManagement', () => {
     
       it('should return user data without sensitive fields', async () => {
         const userId = 1;        
-        const user = { id: userId, name: 'Test User', email: 'test@test.com', password: 'password' , carrinho: []};        
+        const user = { id: userId, name: 'Test User', email: 'test@test.com', password: 'password' , cart: []};        
         mockUserDatabase.findUserById.mockReturnValue(user);
 
         const expectedData = '{"name":"Test User","email":"test@test.com"}';

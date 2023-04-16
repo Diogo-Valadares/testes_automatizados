@@ -37,7 +37,7 @@ export class UserManagement implements IUserManagement{
         if(data === undefined){
             return Promise.reject(new Error("Internal database error!"))
         }
-        return Promise.resolve(stringify(data,["id","password","carrinho"]));        
+        return Promise.resolve(stringify(data,["id","password","cart"]));        
     }     
 }
 
