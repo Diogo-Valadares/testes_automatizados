@@ -4,4 +4,5 @@ export interface Product {
     image: string;
     price: number;
     weight?:number;
+    cartCount:number;
 }
