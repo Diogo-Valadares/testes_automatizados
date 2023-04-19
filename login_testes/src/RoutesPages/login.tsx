@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate } from 'react-router-dom';
 import api from '../api';
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosInstance } from 'axios';
 
 function Login() {    
   const navigate = useNavigate();

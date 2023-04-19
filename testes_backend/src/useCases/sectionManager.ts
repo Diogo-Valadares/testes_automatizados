@@ -1,4 +1,4 @@
-export class section{
+export class Section{
     constructor(
         public authToken:string,
         public userID:number
@@ -6,21 +6,20 @@ export class section{
 }
 
 export interface ISectionManager {
-    activeSections: Array<section>;
     createSection(authToken: string, userID: number): Promise<void>;
     getUserID(authToken: string): Promise<number>;
     destroySection(authToken: string): Promise<string>;
   }
 
 export class SectionManager implements ISectionManager{
-    activeSections: (Array<section>) = [];
+    activeSections: (Array<Section>) = [];
 
     createSection(authToken:string,userID:number):Promise<void>{
         let index = this.activeSections.findIndex(s=> s.authToken == authToken || s.userID == userID);
         if(index != -1){
             return Promise.reject('User already Logged in!');
         }
-        const newSection = new section(authToken,userID);
+        const newSection = new Section(authToken,userID);
         this.activeSections.push(newSection);
         return Promise.resolve();
     }

@@ -2,7 +2,7 @@ import { ISectionManager, SectionManager } from '../useCases/sectionManager';
 import { expect } from '@jest/globals';
 
 describe('SectionManager', () => {
-  let sectionManager: ISectionManager;
+  let sectionManager: SectionManager;
   
   beforeEach(() => {
     sectionManager = new SectionManager();

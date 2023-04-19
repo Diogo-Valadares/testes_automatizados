@@ -1,7 +1,6 @@
 import { IUserDatabase } from "@src/Databases/UserDatabase";
 
 export interface IUserCartManager {
-  userDatabase: IUserDatabase;
   getUserCart(id: number): Promise<string>;
   addToUserCart(userID: number, itemID: number): Promise<string>;
   removeFromUserCart(userID: number, itemID: number): Promise<string>;

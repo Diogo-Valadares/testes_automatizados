@@ -1,16 +1,21 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-import SignUp from './RoutesPages/signUp';
-import Login from './RoutesPages/login';
+import { render, fireEvent} from '@testing-library/react';
+import SignUp from '../RoutesPages/signUp';
+import Login from '../RoutesPages/login';
+import { MemoryRouter } from 'react-router-dom';
 
 describe('SignUp  Tests', () => {
   it('should render all input fields and a submit button', () => {
-    const { getByLabelText, getByText } = render(<SignUp />);
+    const { getByLabelText, getByText } = render(
+      <MemoryRouter>
+        <SignUp />
+      </MemoryRouter>
+    );
     const emailInput = getByLabelText('Email:') as HTMLInputElement;
     const nameInput = getByLabelText('Name:') as HTMLInputElement;
     const passwordInput = getByLabelText('Password:') as HTMLInputElement;
     const confirmPasswordInput = getByLabelText('Confirm Password:') as HTMLInputElement;
-    const submitButton = getByText('Submit') as HTMLButtonElement;
+    const submitButton = getByText('Sign Up') as HTMLButtonElement;
 
     expect(emailInput).toBeInTheDocument();
     expect(nameInput).toBeInTheDocument();
@@ -20,13 +25,17 @@ describe('SignUp  Tests', () => {
   });
 
   it('should show an error message if name is too short on submit', () => {
-    const { getByLabelText, getByText } = render(<SignUp />);
+    const { getByLabelText, getByText } = render(
+      <MemoryRouter>
+        <SignUp />
+      </MemoryRouter>
+    );    
     const nameInput = getByLabelText('Name:') as HTMLInputElement;
     const passwordInput = getByLabelText('Password:') as HTMLInputElement;
     const confirmPasswordInput = getByLabelText('Confirm Password:') as HTMLInputElement;
     const submitButton = getByText('Submit') as HTMLButtonElement;
 
-    fireEvent.change(nameInput, { target: { value: 'abc' } });
+    fireEvent.change(nameInput, { target: { value: 'a c' } });
     fireEvent.change(passwordInput, { target: { value: 'password' } });
     fireEvent.change(confirmPasswordInput, { target: { value: 'password' } });
     fireEvent.click(submitButton);
@@ -36,7 +45,11 @@ describe('SignUp  Tests', () => {
   });
 
   it('should show an error message if name is not composed by at least 2 words on submit', () => {
-    const { getByLabelText, getByText } = render(<SignUp />);
+    const { getByLabelText, getByText } = render(
+      <MemoryRouter>
+        <SignUp />
+      </MemoryRouter>
+    );
     const nameInput = getByLabelText('Name:') as HTMLInputElement;
     const passwordInput = getByLabelText('Password:') as HTMLInputElement;
     const confirmPasswordInput = getByLabelText('Confirm Password:') as HTMLInputElement;
@@ -52,7 +65,11 @@ describe('SignUp  Tests', () => {
   });
 
   it('should show an error message if passwords do not match on submit', () => {
-    const { getByLabelText, getByText } = render(<SignUp />);
+    const { getByLabelText, getByText } = render(
+      <MemoryRouter>
+        <SignUp />
+      </MemoryRouter>
+    );
     const nameInput = getByLabelText('Name:') as HTMLInputElement;
     const passwordInput = getByLabelText('Password:') as HTMLInputElement;
     const confirmPasswordInput = getByLabelText('Confirm Password:') as HTMLInputElement;
@@ -68,7 +85,11 @@ describe('SignUp  Tests', () => {
   });
 
   it('should test if invalid e-mails are not allowed', () => {
-    const { getByLabelText, getByText } = render(<SignUp />);
+    const { getByLabelText, getByText } = render(
+      <MemoryRouter>
+        <SignUp />
+      </MemoryRouter>
+    );
     const emailInput = getByLabelText('Email:') as HTMLInputElement;    
     const submitButton = getByText('Submit');
 
@@ -93,22 +114,30 @@ describe('SignUp  Tests', () => {
 });
 describe('Login  Tests',()=>{
   test('prevents user from submitting blank spaces for email', async () => {
-    const { getByLabelText, getByText } = render(<Login />);
+    const { getByLabelText, getByText } = render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    );
     
     const emailInput = getByLabelText('Email:');
     const passwordInput = getByLabelText('Password:');
-    const submitButton = getByText('Submit');
+    const submitButton = getByText('Login');
     fireEvent.change(emailInput, { target: { value: '  ' } });
     fireEvent.change(passwordInput, { target: { value: '231231241234' } });
     fireEvent.click(submitButton);
     expect(submitButton).toBeInTheDocument();
   });
   test('prevents user from submitting blank spaces for password', async () => {
-    const { getByLabelText, getByText } = render(<Login />);
+    const { getByLabelText, getByText } = render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    );
     
     const emailInput = getByLabelText('Email:');
     const passwordInput = getByLabelText('Password:');
-    const submitButton = getByText('Submit');
+    const submitButton = getByText('Login');
 
     fireEvent.change(emailInput, { target: { value: 'a@a.com' } });
     fireEvent.change(passwordInput, { target: { value: '  ' } });

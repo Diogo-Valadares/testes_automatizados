@@ -1,10 +1,9 @@
 import {Request,Response, response} from 'express'
-import generateAuthToken from "@src/Tools/AuthTokenGenerator";
-import { IUserManagement as IUserManager } from "@src/useCases/userManagement";
-import storeItem from "../Entities/storeItem";
-import { IProductFinder } from '@src/useCases/productFinder';
-import { ISectionManager } from '@src/useCases/sectionManager';
-import { IUserCartManager } from '@src/useCases/cartManagement';
+import generateAuthToken from "../Tools/AuthTokenGenerator";
+import { IUserManagement as IUserManager } from "../useCases/userManagement";
+import { IProductFinder } from '../useCases/productFinder';
+import { ISectionManager } from '../useCases/sectionManager';
+import { IUserCartManager } from '../useCases/cartManagement';
 
 
 export interface IStoreController {
@@ -39,8 +38,7 @@ export interface IStoreController {
             res.status(400);
             res.statusMessage = error;
             res.send()
-        })
-        
+        })        
     }).catch(error=>{            
         console.log("Sent 400:"+error);
         res.status(400);

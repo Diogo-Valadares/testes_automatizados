@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import api from '../api';
 import delay from '../delay';
-
 
 function SignUp() {
   const navigate = useNavigate();
@@ -132,7 +130,7 @@ function SignUp() {
             required />
         </label>
         <br /><br />
-        {infoMessage && <p className="error">{infoMessage}</p>}
+        {infoMessage && <p className="error" datatest-id="infoMessage">{infoMessage}</p>}
         <button type="submit" style={{fontSize: "20px",fontWeight: "bold"}}>Submit</button>
       </form>
     </div></>
